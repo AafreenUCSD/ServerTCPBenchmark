@@ -1,11 +1,14 @@
 package com.javacodegeeks.android.androidsocketserver;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import android.util.Log;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,9 +33,9 @@ public class Server extends Activity {
         setContentView(R.layout.main);
 
         text = (TextView) findViewById(R.id.text2);
+        //text.setMovementMethod(new ScrollingMovementMethod());
 
         updateConversationHandler = new Handler();
-
         this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();
 
@@ -86,7 +89,6 @@ public class Server extends Activity {
             try {
 
                 this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -95,13 +97,15 @@ public class Server extends Activity {
         public void run() {
 
             while (!Thread.currentThread().isInterrupted()) {
-
                 try {
-
                     String read = input.readLine();
-
                     updateConversationHandler.post(new updateUIThread(read));
-
+                    //send ack to the client
+                    PrintWriter out = new PrintWriter(new BufferedWriter(
+                            new OutputStreamWriter(clientSocket.getOutputStream())),
+                            true);
+                    out.println("ack");
+                    Log.e("Server","Sending ack to the client.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
