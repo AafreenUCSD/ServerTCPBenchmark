@@ -57,6 +57,7 @@ public class Server extends Activity {
             Socket socket = null;
             try {
                 serverSocket = new ServerSocket(SERVERPORT);
+                //serverSocket.setReceiveBufferSize(1024*64);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -99,13 +100,15 @@ public class Server extends Activity {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     String read = input.readLine();
-                    updateConversationHandler.post(new updateUIThread(read));
-                    //send ack to the client
-                    PrintWriter out = new PrintWriter(new BufferedWriter(
-                            new OutputStreamWriter(clientSocket.getOutputStream())),
-                            true);
-                    out.println("ack");
-                    Log.e("Server","Sending ack to the client.");
+                    if(read.endsWith("z")) {
+                        updateConversationHandler.post(new updateUIThread(read));
+                        //send ack to the client
+                        PrintWriter out = new PrintWriter(new BufferedWriter(
+                                new OutputStreamWriter(clientSocket.getOutputStream())),
+                                true);
+                        out.println("ack");
+                        Log.e("Server", "Sending ack to the client.");
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -123,7 +126,7 @@ public class Server extends Activity {
 
         @Override
         public void run() {
-            text.setText(text.getText().toString()+"Client Says: "+ msg + "\n");
+            //text.setText(text.getText().toString()+"Client Says: "+ msg + "\n");
         }
     }
 }
